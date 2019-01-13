@@ -9,13 +9,17 @@
 //PA1 is the Rx Pin
 //GND of both the microcontrollers should be shorted
 
-int PWM_Initial;
+//Predefined Variables
+volatile int PWM_Initial = 60;
+volatile int Target = 60;
+volatile int Max_PWM = 127;
+volatile int Kp_Small_Val = 1, Kp_Medium_Val = 2, Kp_Large_Val = 3,
+				Kd_Small_Val = 3, Kd_Medium_Val = 6, Kd_Large_Val = 9;
 
 //Recieved Number of ticks
-int Ticks = 0;
+volatile int Ticks = 0;
 
 //Compute_Error()
-volatile int Target = 60;
 volatile int Prev_Error = 0;
 volatile int Error=0, D_Error=0, Set_Value=10; // Bound on Membership Values
 
@@ -29,12 +33,9 @@ volatile int FM[3][3] = {{0}};
 //Defuzzification()
 volatile int Kp_Small, Kp_Medium, Kp_Large,
 				Kd_Small, Kd_Medium, Kd_Large;
-volatile int Kp_Small_Val = 1, Kp_Medium_Val = 2, Kp_Large_Val = 3,
-				Kd_Small_Val = 3, Kd_Medium_Val = 6, Kd_Large_Val = 9;
 volatile int Kp_Num=0, Kp_Den=0, Kd_Num=0, Kd_Den=0;
 
 volatile int Expected_PWM=0, Fault=0;
-volatile int Max_PWM = 127;
 
 volatile int PWM_Fuzzy = 0;
 
@@ -195,11 +196,11 @@ int main(void)
 	Initialise_UART();
 	Initialise_NVIC();
 
-	PWM_Initial = PWM_Fuzzy;
 	//Send a PWM for the First Time
-
 	while(USART_GetFlagStatus( UART4,USART_FLAG_TXE)!=SET){}
 		USART_SendData(UART4, PWM_Initial);
+
+	PWM_Fuzzy = PWM_Initial;
 	//Subsequent Transmission will be initialise when any data is recieved in the UART4_IRQHandler();
 
     while(1)
